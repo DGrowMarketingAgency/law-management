@@ -25,8 +25,13 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps, curl, server-to-server) in dev
     if (!origin) return callback(null, true);
 
+    const configuredOrigins = (env.clientUrl || "")
+      .split(",")
+      .map((u) => u.trim().replace(/\/$/, ""))
+      .filter(Boolean);
+
     const allowedOrigins = [
-      env.clientUrl,
+      ...configuredOrigins,
       // Also allow localhost variations in development
       ...(env.isDevelopment
         ? ["http://localhost:5173", "http://127.0.0.1:5173"]
@@ -38,7 +43,9 @@ const corsOptions = {
       env.isDevelopment &&
       (/^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin));
 
-    if (allowedOrigins.includes(origin) || isLocalNetwork) {
+    const cleanOrigin = origin.replace(/\/$/, "");
+
+    if (allowedOrigins.includes(cleanOrigin) || isLocalNetwork) {
       callback(null, true);
     } else {
       callback(new Error(`Origin ${origin} is not allowed by CORS policy`));

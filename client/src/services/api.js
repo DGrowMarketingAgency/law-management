@@ -1,10 +1,19 @@
 import axios from "axios";
 
 const getBaseURL = () => {
-  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-    return `http://${window.location.hostname}:9000/api/v1`;
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
   }
-  return import.meta.env.VITE_API_BASE_URL || "http://localhost:9000/api/v1";
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    // In local development
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
+      return "http://localhost:9000/api/v1";
+    }
+    // On production/staging server (same domain)
+    return `${window.location.origin}/api/v1`;
+  }
+  return "http://localhost:9000/api/v1";
 };
 
 const baseURL = getBaseURL();
