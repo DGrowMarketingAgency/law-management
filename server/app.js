@@ -89,13 +89,36 @@ app.use(cookieParser());
 // 6. Register Request Logger
 app.use(requestLogger);
 
+// Static frontend serving (Single-Domain Full-Stack Architecture)
+const path = require("path");
+const fs = require("fs");
+const staticDir = fs.existsSync(path.resolve(__dirname, "public/index.html"))
+  ? path.resolve(__dirname, "public")
+  : fs.existsSync(path.resolve(__dirname, "../client/dist/index.html"))
+  ? path.resolve(__dirname, "../client/dist")
+  : null;
+
+if (staticDir) {
+  app.use(express.static(staticDir));
+}
+
 // 7. Register API Routes under /api/v1
 app.use("/api/v1", apiRoutes);
 
-// 8. Register 404 Middleware
+// 8. SPA fallback for frontend routes (e.g. /login, /dashboard, /setup)
+if (staticDir) {
+  app.get("*", (req, res, next) => {
+    if (req.originalUrl.startsWith("/api/")) {
+      return next();
+    }
+    res.sendFile(path.join(staticDir, "index.html"));
+  });
+}
+
+// 9. Register 404 Middleware
 app.use(notFound);
 
-// 9. Register Global Error Handler
+// 10. Register Global Error Handler
 app.use(errorHandler);
 
 module.exports = app;
