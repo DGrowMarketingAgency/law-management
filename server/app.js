@@ -45,7 +45,10 @@ const corsOptions = {
 
     const cleanOrigin = origin.replace(/\/$/, "");
 
-    if (allowedOrigins.includes(cleanOrigin) || isLocalNetwork) {
+    const isDGrowDomain =
+      /^https?:\/\/(?:[a-zA-Z0-9-]+\.)*dgrowmarketing\.com(?::\d+)?$/.test(cleanOrigin);
+
+    if (allowedOrigins.includes(cleanOrigin) || isDGrowDomain || isLocalNetwork) {
       callback(null, true);
     } else {
       callback(new Error(`Origin ${origin} is not allowed by CORS policy`));
