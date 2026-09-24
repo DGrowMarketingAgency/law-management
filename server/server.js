@@ -28,6 +28,8 @@ async function startServer() {
         await runWorkforceMigration();
         const runLegalDocumentMigration = require("./database/legal_document_migration");
         await runLegalDocumentMigration();
+        const runEmailSecurityMigration = require("./database/email_security_migration");
+        await runEmailSecurityMigration();
       } catch (migErr) {
         console.error("[Database Warning]: Migration failed:", migErr.message);
       }
