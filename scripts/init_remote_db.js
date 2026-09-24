@@ -11,6 +11,10 @@ async function executeSqlFile(conn, filePath) {
   content = content.replace(/CREATE\s+DATABASE[^;]+;/gis, "");
   // Remove USE ... ;
   content = content.replace(/USE\s+`?[a-zA-Z0-9_]+`?;/gis, "");
+  // Remove DELIMITER blocks
+  content = content.replace(/DELIMITER[\s\S]*?DELIMITER\s*;/gi, "");
+  content = content.replace(/CALL\s+upgrade_document_versions_for_vault\(\);/gi, "");
+  content = content.replace(/DROP\s+PROCEDURE\s+IF\s+EXISTS\s+upgrade_document_versions_for_vault;/gi, "");
 
   // Execute using multiple statements
   await conn.query(content);
@@ -36,9 +40,11 @@ async function run() {
       path.resolve(__dirname, "../database/crm_schema.sql"),
       path.resolve(__dirname, "../database/case_schema.sql"),
       path.resolve(__dirname, "../database/deadline_schema.sql"),
-      path.resolve(__dirname, "../server/database/vault_schema.sql"),
       path.resolve(__dirname, "../server/database/document_schema.sql"),
+      path.resolve(__dirname, "../server/database/legal_document_schema.sql"),
+      path.resolve(__dirname, "../server/database/vault_schema.sql"),
       path.resolve(__dirname, "../server/database/billing_schema.sql"),
+      path.resolve(__dirname, "../server/database/workforce_schema.sql"),
     ];
 
     for (const file of baseSqlFiles) {
